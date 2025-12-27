@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYC Subway Board</title>
+    <title>NYC Subway Board - 1/2/3 Line</title>
     <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.4/dist/protobuf.min.js"></script>
     <style>
         body { 
@@ -12,7 +12,6 @@
             display: flex; flex-direction: column; align-items: center;
         }
 
-        /* Side margins maintained (850px pillar) */
         .station-container { 
             width: 95%; 
             max-width: 850px; 
@@ -22,12 +21,10 @@
         .white-line { height: 2px; background: #fff; width: 100%; margin-top: 15px; }
 
         .header { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
-        
         .station-name { font-size: clamp(1.5rem, 6vw, 2.8rem); font-weight: 700; letter-spacing: -1.5px; margin: 0; }
         
         .bullet-box { display: flex; gap: 5px; }
 
-        /* Reduced size slightly (from 70px to 62px) */
         .circle-lg {
             background: #EE352E; color: #fff; border-radius: 50%;
             width: clamp(40px, 10vw, 62px); 
@@ -45,7 +42,6 @@
             width: 100%;
         }
 
-        /* Large right-justified labels */
         .column-title {
             color: #666; 
             text-transform: uppercase; 
@@ -58,10 +54,8 @@
             text-align: right;
         }
 
-        /* Compressed Row Spacing */
         .train-row {
             display: flex;
-            justify-content: space-between;
             align-items: center;
             padding: 8px 0; 
             border-bottom: 1px solid #222;
@@ -73,6 +67,13 @@
             width: 32px; height: 32px; display: flex; align-items: center;
             justify-content: center; font-size: 20px; font-weight: 900;
             flex-shrink: 0;
+            margin-right: 12px;
+        }
+
+        .clock-time {
+            font-size: 1.1rem;
+            color: #888;
+            font-weight: 500;
         }
 
         .time-display {
@@ -89,12 +90,12 @@
             .grid-system { grid-template-columns: 1fr; gap: 20px; }
             .column-title { text-align: left; font-size: 1.2rem; }
             .station-container { margin-bottom: 30px; }
+            .clock-time { font-size: 0.9rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 103rd Street -->
     <div class="station-container">
         <div class="white-line"></div>
         <div class="header">
@@ -102,18 +103,11 @@
             <div class="bullet-box"><div class="circle-lg">1</div></div>
         </div>
         <div class="grid-system">
-            <div>
-                <div class="column-title">Downtown</div>
-                <div id="stop-119-S"></div>
-            </div>
-            <div>
-                <div class="column-title">Uptown</div>
-                <div id="stop-119-N"></div>
-            </div>
+            <div><div class="column-title">Downtown</div><div id="stop-119-S"></div></div>
+            <div><div class="column-title">Uptown</div><div id="stop-119-N"></div></div>
         </div>
     </div>
 
-    <!-- 96th Street -->
     <div class="station-container">
         <div class="white-line"></div>
         <div class="header">
@@ -125,18 +119,11 @@
             </div>
         </div>
         <div class="grid-system">
-            <div>
-                <div class="column-title">Downtown</div>
-                <div id="stop-120-S"></div>
-            </div>
-            <div>
-                <div class="column-title">Uptown</div>
-                <div id="stop-120-N"></div>
-            </div>
+            <div><div class="column-title">Downtown</div><div id="stop-120-S"></div></div>
+            <div><div class="column-title">Uptown</div><div id="stop-120-N"></div></div>
         </div>
     </div>
 
-    <!-- 34th Street–Penn Station -->
     <div class="station-container">
         <div class="white-line"></div>
         <div class="header">
@@ -148,14 +135,8 @@
             </div>
         </div>
         <div class="grid-system">
-            <div>
-                <div class="column-title">Downtown</div>
-                <div id="stop-128-S"></div>
-            </div>
-            <div>
-                <div class="column-title">Uptown</div>
-                <div id="stop-128-N"></div>
-            </div>
+            <div><div class="column-title">Downtown</div><div id="stop-128-S"></div></div>
+            <div><div class="column-title">Uptown</div><div id="stop-128-N"></div></div>
         </div>
     </div>
 
@@ -193,7 +174,6 @@
                 const buf = await res.arrayBuffer();
                 const msg = FeedType.decode(new Uint8Array(buf));
                 const now = Math.floor(Date.now() / 1000);
-                
                 const data = {};
                 STATIONS.forEach(s => data[s] = { N: [], S: [] });
 
@@ -208,7 +188,9 @@
                                     const mins = Math.floor((time - now) / 60);
                                     if (mins >= -1 && mins < 60) {
                                         const dir = stu.stopId.includes('N') ? 'N' : 'S';
-                                        data[stop][dir].push({ m: Math.max(0, mins), r: route });
+                                        const date = new Date(time * 1000);
+                                        const clock = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+                                        data[stop][dir].push({ m: Math.max(0, mins), r: route, c: clock });
                                     }
                                 }
                             }
@@ -226,21 +208,18 @@
                         const html = list.map(item => `
                             <div class="train-row">
                                 <div class="circle-sm">${item.r}</div>
+                                <div class="clock-time">${item.c}</div>
                                 <div class="time-display">
                                     ${item.m <= 0 ? '<span class="arriving">ARRIVING</span>' : item.m + '<span class="min-unit">MIN</span>'}
                                 </div>
                             </div>
                         `).join('');
-                        
                         document.getElementById(`stop-${s}-${dir}`).innerHTML = html || '<div class="train-row" style="color:#222">--</div>';
                     });
                 });
                 document.getElementById('status-bar').innerText = "Last Update: " + new Date().toLocaleTimeString();
-            } catch (e) { 
-                document.getElementById('status-bar').innerText = "Update error. Retrying..."; 
-            }
+            } catch (e) { document.getElementById('status-bar').innerText = "Update error. Retrying..."; }
         }
-
         init();
     </script>
 </body>
