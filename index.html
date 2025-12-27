@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYC Subway Board - Version 1.2 Milestone</title>
+    <title>NYC Subway Board - Version 1.3 Milestone</title>
     <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.4/dist/protobuf.min.js"></script>
     <style>
         body { 
@@ -13,21 +13,18 @@
         }
 
         .station-container { 
-            display: flex;
-            flex-direction: column;
             width: 100%; 
             max-width: 850px; 
-            margin-bottom: 12px; /* Reduced from 20px */
+            margin-bottom: 12px;
         }
 
-        .white-line { order: 0; height: 2px; background: #fff; width: 100%; margin-top: 10px; }
+        .white-line { height: 2px; background: #fff; width: 100%; margin-top: 10px; }
         
         .header { 
-            order: 1;
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            padding: 8px 0 4px 0; /* Tightened bottom padding */
+            padding: 8px 0 4px 0; 
             cursor: pointer; 
             user-select: none;
         }
@@ -40,17 +37,34 @@
             margin: 0; 
         }
 
+        /* The Toggleable Body */
+        .station-body {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
         .service-alert {
-            order: 2;
+            order: 1; /* Top on Desktop */
             color: #D4AF37; 
             font-size: 0.8rem;
             font-weight: 500;
-            margin-bottom: 4px; /* Significantly reduced from 10px */
+            margin-top: 5px;
+            margin-bottom: 8px;
             text-transform: uppercase;
-            display: none;
+            display: none; /* Controlled by JS based on data */
             line-height: 1.2;
         }
         
+        .grid-system { 
+            order: 2; /* Bottom on Desktop */
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            column-gap: 120px; 
+            width: 100%; 
+            padding-bottom: 15px;
+        }
+
         .bullet-box { display: flex; gap: 5px; }
         .circle-lg {
             color: #fff; border-radius: 50%; width: clamp(35px, 8vw, 58px); height: clamp(35px, 8vw, 58px); 
@@ -64,15 +78,6 @@
         .color-orange { background: #FF6319; }
 
         .hidden { display: none !important; }
-        
-        .grid-system { 
-            order: 3;
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            column-gap: 120px; 
-            width: 100%; 
-            padding-bottom: 15px;
-        }
         
         .column-title { color: #666; text-transform: uppercase; font-size: 1.4rem; font-weight: 900; padding-bottom: 5px; margin-bottom: 5px; border-bottom: 1px solid #222; letter-spacing: 2px; text-align: right; }
         .train-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #222; min-height: 40px; }
@@ -88,8 +93,8 @@
         #status-bar { color: #333; font-size: 0.7rem; margin-top: 20px; text-align: center; }
         
         @media (max-width: 600px) { 
-            .grid-system { order: 2; grid-template-columns: 1fr; gap: 20px; } 
-            .service-alert { order: 3; margin-top: 10px; margin-bottom: 5px; }
+            .grid-system { order: 1; grid-template-columns: 1fr; gap: 20px; } 
+            .service-alert { order: 2; margin-top: 10px; }
             .column-title { text-align: left; font-size: 1.2rem; } 
         }
     </style>
@@ -104,10 +109,12 @@
                 <h1 class="station-name">103 Street Station</h1>
                 <div class="bullet-box"><div class="circle-lg color-red">1</div></div>
             </div>
-            <div id="alert-119" class="service-alert"></div>
-            <div id="body-119" class="grid-system">
-                <div><div class="column-title">Downtown</div><div id="stop-119-S"></div></div>
-                <div><div class="column-title">Uptown</div><div id="stop-119-N"></div></div>
+            <div id="body-119" class="station-body">
+                <div id="alert-119" class="service-alert"></div>
+                <div class="grid-system">
+                    <div><div class="column-title">Downtown</div><div id="stop-119-S"></div></div>
+                    <div><div class="column-title">Uptown</div><div id="stop-119-N"></div></div>
+                </div>
             </div>
         </div>
 
@@ -118,10 +125,12 @@
                 <h1 class="station-name">96 Street Station</h1>
                 <div class="bullet-box"><div class="circle-lg color-red">1</div><div class="circle-lg color-red">2</div><div class="circle-lg color-red">3</div></div>
             </div>
-            <div id="alert-120" class="service-alert"></div>
-            <div id="body-120" class="grid-system hidden">
-                <div><div class="column-title">Downtown</div><div id="stop-120-S"></div></div>
-                <div><div class="column-title">Uptown</div><div id="stop-120-N"></div></div>
+            <div id="body-120" class="station-body hidden">
+                <div id="alert-120" class="service-alert"></div>
+                <div class="grid-system">
+                    <div><div class="column-title">Downtown</div><div id="stop-120-S"></div></div>
+                    <div><div class="column-title">Uptown</div><div id="stop-120-N"></div></div>
+                </div>
             </div>
         </div>
 
@@ -132,10 +141,12 @@
                 <h1 class="station-name">59 St - Columbus Circle</h1>
                 <div class="bullet-box"><div class="circle-lg color-red">1</div></div>
             </div>
-            <div id="alert-125" class="service-alert"></div>
-            <div id="body-125" class="grid-system hidden">
-                <div><div class="column-title">Downtown</div><div id="stop-125-S"></div></div>
-                <div><div class="column-title">Uptown</div><div id="stop-125-N"></div></div>
+            <div id="body-125" class="station-body hidden">
+                <div id="alert-125" class="service-alert"></div>
+                <div class="grid-system">
+                    <div><div class="column-title">Downtown</div><div id="stop-125-S"></div></div>
+                    <div><div class="column-title">Uptown</div><div id="stop-125-N"></div></div>
+                </div>
             </div>
         </div>
 
@@ -146,10 +157,12 @@
                 <h1 class="station-name">59 St - Columbus Circle</h1>
                 <div class="bullet-box"><div class="circle-lg color-orange">B</div><div class="circle-lg color-orange">D</div></div>
             </div>
-            <div id="alert-A24" class="service-alert"></div>
-            <div id="body-A24" class="grid-system hidden">
-                <div><div class="column-title">Downtown</div><div id="stop-A24-S"></div></div>
-                <div><div class="column-title">Uptown</div><div id="stop-A24-N"></div></div>
+            <div id="body-A24" class="station-body hidden">
+                <div id="alert-A24" class="service-alert"></div>
+                <div class="grid-system">
+                    <div><div class="column-title">Downtown</div><div id="stop-A24-S"></div></div>
+                    <div><div class="column-title">Uptown</div><div id="stop-A24-N"></div></div>
+                </div>
             </div>
         </div>
 
@@ -160,10 +173,12 @@
                 <h1 class="station-name">42 St - Times Square</h1>
                 <div class="bullet-box"><div class="circle-lg color-red">1</div><div class="circle-lg color-red">2</div><div class="circle-lg color-red">3</div></div>
             </div>
-            <div id="alert-127" class="service-alert"></div>
-            <div id="body-127" class="grid-system hidden">
-                <div><div class="column-title">Downtown</div><div id="stop-127-S"></div></div>
-                <div><div class="column-title">Uptown</div><div id="stop-127-N"></div></div>
+            <div id="body-127" class="station-body hidden">
+                <div id="alert-127" class="service-alert"></div>
+                <div class="grid-system">
+                    <div><div class="column-title">Downtown</div><div id="stop-127-S"></div></div>
+                    <div><div class="column-title">Uptown</div><div id="stop-127-N"></div></div>
+                </div>
             </div>
         </div>
 
@@ -174,10 +189,12 @@
                 <h1 class="station-name">42 St - Times Square</h1>
                 <div class="bullet-box"><div class="circle-lg color-purple">7</div></div>
             </div>
-            <div id="alert-725" class="service-alert"></div>
-            <div id="body-725" class="grid-system hidden">
-                <div><div class="column-title">Downtown</div><div id="stop-725-S"></div></div>
-                <div><div class="column-title">Uptown</div><div id="stop-725-N"></div></div>
+            <div id="body-725" class="station-body hidden">
+                <div id="alert-725" class="service-alert"></div>
+                <div class="grid-system">
+                    <div><div class="column-title">Downtown</div><div id="stop-725-S"></div></div>
+                    <div><div class="column-title">Uptown</div><div id="stop-725-N"></div></div>
+                </div>
             </div>
         </div>
 
@@ -188,10 +205,12 @@
                 <h1 class="station-name">42 St - Times Square</h1>
                 <div class="bullet-box"><div class="circle-lg color-yellow">N</div><div class="circle-lg color-yellow">R</div><div class="circle-lg color-yellow">Q</div></div>
             </div>
-            <div id="alert-R16" class="service-alert"></div>
-            <div id="body-R16" class="grid-system hidden">
-                <div><div class="column-title">Downtown</div><div id="stop-R16-S"></div></div>
-                <div><div class="column-title">Uptown</div><div id="stop-R16-N"></div></div>
+            <div id="body-R16" class="station-body hidden">
+                <div id="alert-R16" class="service-alert"></div>
+                <div class="grid-system">
+                    <div><div class="column-title">Downtown</div><div id="stop-R16-S"></div></div>
+                    <div><div class="column-title">Uptown</div><div id="stop-R16-N"></div></div>
+                </div>
             </div>
         </div>
 
@@ -202,24 +221,28 @@
                 <h1 class="station-name">34 Street Penn Station</h1>
                 <div class="bullet-box"><div class="circle-lg color-red">1</div><div class="circle-lg color-red">2</div><div class="circle-lg color-red">3</div></div>
             </div>
-            <div id="alert-128" class="service-alert"></div>
-            <div id="body-128" class="grid-system hidden">
-                <div><div class="column-title">Downtown</div><div id="stop-128-S"></div></div>
-                <div><div class="column-title">Uptown</div><div id="stop-128-N"></div></div>
+            <div id="body-128" class="station-body hidden">
+                <div id="alert-128" class="service-alert"></div>
+                <div class="grid-system">
+                    <div><div class="column-title">Downtown</div><div id="stop-128-S"></div></div>
+                    <div><div class="column-title">Uptown</div><div id="stop-128-N"></div></div>
+                </div>
             </div>
         </div>
 
-        <!-- 34 St Hudson Yards -->
+        <!-- 34 St Hudson -->
         <div class="station-container">
             <div class="white-line"></div>
             <div class="header" onclick="toggleStation('body-726')">
                 <h1 class="station-name">34 St - Hudson Yards</h1>
                 <div class="bullet-box"><div class="circle-lg color-purple">7</div></div>
             </div>
-            <div id="alert-726" class="service-alert"></div>
-            <div id="body-726" class="grid-system hidden">
-                <div><div class="column-title">Downtown</div><div id="stop-726-S"></div></div>
-                <div><div class="column-title">Uptown</div><div id="stop-726-N"></div></div>
+            <div id="body-726" class="station-body hidden">
+                <div id="alert-726" class="service-alert"></div>
+                <div class="grid-system">
+                    <div><div class="column-title">Downtown</div><div id="stop-726-S"></div></div>
+                    <div><div class="column-title">Uptown</div><div id="stop-726-N"></div></div>
+                </div>
             </div>
         </div>
 
@@ -230,10 +253,12 @@
                 <h1 class="station-name">36 St - Brooklyn</h1>
                 <div class="bullet-box"><div class="circle-lg color-orange">D</div><div class="circle-lg color-yellow">N</div><div class="circle-lg color-yellow">R</div></div>
             </div>
-            <div id="alert-R36" class="service-alert"></div>
-            <div id="body-R36" class="grid-system hidden">
-                <div><div class="column-title">Manhattan</div><div id="stop-R36-N"></div></div>
-                <div><div class="column-title">Coney Isl</div><div id="stop-R36-S"></div></div>
+            <div id="body-R36" class="station-body hidden">
+                <div id="alert-R36" class="service-alert"></div>
+                <div class="grid-system">
+                    <div><div class="column-title">Manhattan</div><div id="stop-R36-N"></div></div>
+                    <div><div class="column-title">Coney Isl</div><div id="stop-R36-S"></div></div>
+                </div>
             </div>
         </div>
     </div>
@@ -293,6 +318,7 @@
                 activeAlerts[s] = new Set();
             });
 
+            // 1. Alerts
             try {
                 const alertRes = await fetch(PROXY + encodeURIComponent(ALERTS_URL));
                 const alertData = await alertRes.json();
@@ -310,6 +336,7 @@
                 }
             } catch (e) {}
 
+            // 2. Train Times
             for (const url of FEEDS) {
                 try {
                     const res = await fetch(PROXY + encodeURIComponent(url));
@@ -338,6 +365,7 @@
                 } catch (e) {}
             }
 
+            // 3. Render
             Object.keys(STATION_CONFIG).forEach(s => {
                 const alertEl = document.getElementById(`alert-${s}`);
                 if (activeAlerts[s].size > 0) {
