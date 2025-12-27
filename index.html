@@ -21,8 +21,20 @@
         .white-line { height: 2px; background: #fff; width: 100%; margin-top: 15px; }
 
         .header { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
-        .station-name { font-size: clamp(1.5rem, 6vw, 2.8rem); font-weight: 700; letter-spacing: -1.5px; margin: 0; }
         
+        /* Added pointer cursor and hover effect for the name */
+        .station-name { 
+            font-size: clamp(1.5rem, 6vw, 2.8rem); 
+            font-weight: 700; 
+            letter-spacing: -2px; 
+            margin: 0; 
+            cursor: pointer; 
+            user-select: none;
+            transition: opacity 0.2s;
+        }
+        .station-name:hover { opacity: 0.7; }
+        .station-name:active { opacity: 0.5; }
+
         .bullet-box { display: flex; gap: 5px; }
 
         .circle-lg {
@@ -34,6 +46,9 @@
             font-size: clamp(24px, 6vw, 40px); 
             font-weight: 900;
         }
+
+        /* Class to handle hiding the content */
+        .hidden { display: none !important; }
 
         .grid-system {
             display: grid;
@@ -99,10 +114,10 @@
     <div class="station-container">
         <div class="white-line"></div>
         <div class="header">
-            <h1 class="station-name">103 Street Station</h1>
+            <h1 class="station-name" onclick="toggleStation('body-119')">103 Street Station</h1>
             <div class="bullet-box"><div class="circle-lg">1</div></div>
         </div>
-        <div class="grid-system">
+        <div id="body-119" class="grid-system">
             <div><div class="column-title">Downtown</div><div id="stop-119-S"></div></div>
             <div><div class="column-title">Uptown</div><div id="stop-119-N"></div></div>
         </div>
@@ -111,14 +126,14 @@
     <div class="station-container">
         <div class="white-line"></div>
         <div class="header">
-            <h1 class="station-name">96 Street Station</h1>
+            <h1 class="station-name" onclick="toggleStation('body-120')">96 Street Station</h1>
             <div class="bullet-box">
                 <div class="circle-lg">1</div>
                 <div class="circle-lg">2</div>
                 <div class="circle-lg">3</div>
             </div>
         </div>
-        <div class="grid-system">
+        <div id="body-120" class="grid-system">
             <div><div class="column-title">Downtown</div><div id="stop-120-S"></div></div>
             <div><div class="column-title">Uptown</div><div id="stop-120-N"></div></div>
         </div>
@@ -127,14 +142,14 @@
     <div class="station-container">
         <div class="white-line"></div>
         <div class="header">
-            <h1 class="station-name">34 Street Station</h1>
+            <h1 class="station-name" onclick="toggleStation('body-128')">34 Street Station</h1>
             <div class="bullet-box">
                 <div class="circle-lg">1</div>
                 <div class="circle-lg">2</div>
                 <div class="circle-lg">3</div>
             </div>
         </div>
-        <div class="grid-system">
+        <div id="body-128" class="grid-system">
             <div><div class="column-title">Downtown</div><div id="stop-128-S"></div></div>
             <div><div class="column-title">Uptown</div><div id="stop-128-N"></div></div>
         </div>
@@ -158,6 +173,12 @@
         `;
 
         let FeedType;
+
+        // Toggle function to hide/show station content
+        function toggleStation(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('hidden');
+        }
 
         async function init() {
             try {
