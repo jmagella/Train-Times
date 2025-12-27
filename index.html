@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYC Subway Board - Final Master</title>
+    <title>NYC Subway Board - Clean Headers</title>
     <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.4/dist/protobuf.min.js"></script>
     <style>
         body { 
@@ -14,7 +14,6 @@
         .station-container { width: 100%; max-width: 850px; margin-bottom: 20px; }
         .white-line { height: 2px; background: #fff; width: 100%; margin-top: 15px; }
         
-        /* The entire header is now the clickable area */
         .header { 
             display: flex; 
             justify-content: space-between; 
@@ -42,7 +41,7 @@
         
         .color-red { background: #EE352E; }
         .color-purple { background: #B933AD; }
-        .color-yellow { background: #FCCC0A; color: #000; } 
+        .color-yellow { background: #FCCC0A; color: #000 !important; } 
         .color-orange { background: #FF6319; }
 
         .hidden { display: none !important; }
@@ -74,7 +73,7 @@
 </head>
 <body>
 
-    <!-- 103rd Street (Default: OPEN) -->
+    <!-- 103rd Street (OPEN) -->
     <div class="station-container">
         <div class="white-line"></div>
         <div class="header" onclick="toggleStation('body-119')">
@@ -87,7 +86,7 @@
         </div>
     </div>
 
-    <!-- 96th Street (Default: HIDDEN) -->
+    <!-- 96th Street -->
     <div class="station-container">
         <div class="white-line"></div>
         <div class="header" onclick="toggleStation('body-120')">
@@ -100,11 +99,11 @@
         </div>
     </div>
 
-    <!-- 59th Street 1 (Default: HIDDEN) -->
+    <!-- 59th Street (1) -->
     <div class="station-container">
         <div class="white-line"></div>
         <div class="header" onclick="toggleStation('body-125')">
-            <h1 class="station-name">59 St - Columbus Circle (1)</h1>
+            <h1 class="station-name">59 St - Columbus Circle</h1>
             <div class="bullet-box"><div class="circle-lg color-red">1</div></div>
         </div>
         <div id="body-125" class="grid-system hidden">
@@ -113,11 +112,11 @@
         </div>
     </div>
 
-    <!-- 59th Street BD (Default: HIDDEN) -->
+    <!-- 59th Street (B,D) -->
     <div class="station-container">
         <div class="white-line"></div>
         <div class="header" onclick="toggleStation('body-A24')">
-            <h1 class="station-name">59 St - Columbus Circle (B,D)</h1>
+            <h1 class="station-name">59 St - Columbus Circle</h1>
             <div class="bullet-box"><div class="circle-lg color-orange">B</div><div class="circle-lg color-orange">D</div></div>
         </div>
         <div id="body-A24" class="grid-system hidden">
@@ -126,11 +125,11 @@
         </div>
     </div>
 
-    <!-- 42nd Street 123 (Default: HIDDEN) -->
+    <!-- 42nd Street (1,2,3) -->
     <div class="station-container">
         <div class="white-line"></div>
         <div class="header" onclick="toggleStation('body-127')">
-            <h1 class="station-name">42 St - Times Square (1,2,3)</h1>
+            <h1 class="station-name">42 St - Times Square</h1>
             <div class="bullet-box"><div class="circle-lg color-red">1</div><div class="circle-lg color-red">2</div><div class="circle-lg color-red">3</div></div>
         </div>
         <div id="body-127" class="grid-system hidden">
@@ -139,11 +138,11 @@
         </div>
     </div>
 
-    <!-- 42nd Street NRQ (Default: HIDDEN) -->
+    <!-- 42nd Street (N,R,Q) -->
     <div class="station-container">
         <div class="white-line"></div>
         <div class="header" onclick="toggleStation('body-R16')">
-            <h1 class="station-name">42 St - Times Square (N,R,Q)</h1>
+            <h1 class="station-name">42 St - Times Square</h1>
             <div class="bullet-box"><div class="circle-lg color-yellow">N</div><div class="circle-lg color-yellow">R</div><div class="circle-lg color-yellow">Q</div></div>
         </div>
         <div id="body-R16" class="grid-system hidden">
@@ -152,7 +151,7 @@
         </div>
     </div>
 
-    <!-- 34th Penn (Default: HIDDEN) -->
+    <!-- 34th Penn -->
     <div class="station-container">
         <div class="white-line"></div>
         <div class="header" onclick="toggleStation('body-128')">
@@ -165,11 +164,11 @@
         </div>
     </div>
 
-    <!-- 42nd St 7 (Default: HIDDEN) -->
+    <!-- 42nd St (7) -->
     <div class="station-container">
         <div class="white-line"></div>
         <div class="header" onclick="toggleStation('body-725')">
-            <h1 class="station-name">42 St - Times Square (7)</h1>
+            <h1 class="station-name">42 St - Times Square</h1>
             <div class="bullet-box"><div class="circle-lg color-purple">7</div></div>
         </div>
         <div id="body-725" class="grid-system hidden">
@@ -178,7 +177,7 @@
         </div>
     </div>
 
-    <!-- Hudson Yards (Default: HIDDEN) -->
+    <!-- Hudson Yards -->
     <div class="station-container">
         <div class="white-line"></div>
         <div class="header" onclick="toggleStation('body-726')">
@@ -188,6 +187,23 @@
         <div id="body-726" class="grid-system hidden">
             <div><div class="column-title">Downtown</div><div id="stop-726-S"></div></div>
             <div><div class="column-title">Uptown</div><div id="stop-726-N"></div></div>
+        </div>
+    </div>
+
+    <!-- 36th St Brooklyn -->
+    <div class="station-container">
+        <div class="white-line"></div>
+        <div class="header" onclick="toggleStation('body-R36')">
+            <h1 class="station-name">36 St - Brooklyn</h1>
+            <div class="bullet-box">
+                <div class="circle-lg color-orange">D</div>
+                <div class="circle-lg color-yellow">N</div>
+                <div class="circle-lg color-yellow">R</div>
+            </div>
+        </div>
+        <div id="body-R36" class="grid-system hidden">
+            <div><div class="column-title">Manhattan Bound</div><div id="stop-R36-N"></div></div>
+            <div><div class="column-title">Coney Island Bound</div><div id="stop-R36-S"></div></div>
         </div>
     </div>
 
@@ -211,7 +227,8 @@
             'R16': { allowed: ['N', 'R', 'Q'] },
             '128': { allowed: ['1', '2', '3'] },
             '725': { allowed: ['7'] },
-            '726': { allowed: ['7'] }
+            '726': { allowed: ['7'] },
+            'R36': { allowed: ['D', 'N', 'R'] }
         };
 
         const protoStr = `
@@ -285,6 +302,8 @@
 
                 Object.keys(STATION_CONFIG).forEach(s => {
                     ['N', 'S'].forEach(dir => {
+                        const container = document.getElementById(`stop-${s}-${dir}`);
+                        if (!container) return;
                         const list = results[s][dir].sort((a, b) => a.m - b.m).filter((v, i, a) => a.findIndex(t => t.m === v.m && t.r === v.r) === i).slice(0, 3);
                         const html = list.map(item => `
                             <div class="train-row">
@@ -295,7 +314,7 @@
                                 </div>
                             </div>
                         `).join('');
-                        document.getElementById(`stop-${s}-${dir}`).innerHTML = html || '<div class="train-row" style="color:#222">--</div>';
+                        container.innerHTML = html || '<div class="train-row" style="color:#222">--</div>';
                     });
                 });
                 document.getElementById('status-bar').innerText = "Updated: " + new Date().toLocaleTimeString();
