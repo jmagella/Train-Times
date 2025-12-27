@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYC Subway Board - Master</title>
+    <title>NYC Subway Board - Final Master</title>
     <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.4/dist/protobuf.min.js"></script>
     <style>
         body { 
@@ -11,42 +11,74 @@
             background: #000; color: #fff; margin: 0; padding: 10px;
             display: flex; flex-direction: column; align-items: center;
         }
-        .station-container { width: 100%; max-width: 850px; margin-bottom: 40px; }
+        .station-container { width: 100%; max-width: 850px; margin-bottom: 20px; }
         .white-line { height: 2px; background: #fff; width: 100%; margin-top: 15px; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
-        .station-name { 
-            font-size: clamp(1.2rem, 5vw, 2.5rem); font-weight: 700; letter-spacing: -1.5px; 
-            margin: 0; cursor: pointer; user-select: none; transition: opacity 0.2s;
+        
+        /* The entire header is now the clickable area */
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 12px 0; 
+            cursor: pointer; 
+            user-select: none;
+            transition: background 0.2s;
         }
-        .station-name:hover { opacity: 0.7; }
+        .header:hover { background: rgba(255,255,255,0.05); }
+
+        .station-name { 
+            font-size: clamp(1.2rem, 5vw, 2.5rem); 
+            font-weight: 700; 
+            letter-spacing: -1.5px; 
+            margin: 0; 
+        }
+        
         .bullet-box { display: flex; gap: 5px; }
         .circle-lg {
             color: #fff; border-radius: 50%; width: clamp(35px, 8vw, 58px); height: clamp(35px, 8vw, 58px); 
             display: flex; align-items: center; justify-content: center; 
             font-size: clamp(20px, 5vw, 36px); font-weight: 900;
         }
+        
         .color-red { background: #EE352E; }
         .color-purple { background: #B933AD; }
+        .color-yellow { background: #FCCC0A; color: #000; } 
+        .color-orange { background: #FF6319; }
+
         .hidden { display: none !important; }
-        .grid-system { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); column-gap: clamp(20px, 10vw, 120px); width: 100%; }
+        
+        .grid-system { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            column-gap: clamp(20px, 10vw, 120px); 
+            width: 100%; 
+            padding-bottom: 20px;
+        }
+        
         .column-title { color: #666; text-transform: uppercase; font-size: 1.4rem; font-weight: 900; padding-bottom: 5px; margin-bottom: 5px; border-bottom: 1px solid #222; letter-spacing: 2px; text-align: right; }
         .train-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #222; min-height: 40px; }
-        .circle-sm { color: #fff; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; flex-shrink: 0; margin-right: 12px; }
+        .circle-sm { border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; flex-shrink: 0; margin-right: 12px; }
+        .circle-sm:not(.color-yellow) { color: #fff; }
+        
         .clock-time { font-size: 1.1rem; color: #888; font-weight: 500; }
         .time-display { font-size: 2rem; font-weight: 700; text-align: right; white-space: nowrap; flex-grow: 1; }
         .min-unit { font-size: 0.4em; color: #666; margin-left: 4px; }
         .arriving { color: #ffcc00; font-size: 0.8em; font-weight: 900; }
         #status-bar { color: #444; font-size: 0.7rem; margin-top: 20px; text-align: center; }
-        @media (max-width: 600px) { .grid-system { grid-template-columns: 1fr; gap: 20px; } .column-title { text-align: left; font-size: 1.2rem; } }
+        
+        @media (max-width: 600px) { 
+            .grid-system { grid-template-columns: 1fr; gap: 20px; } 
+            .column-title { text-align: left; font-size: 1.2rem; } 
+        }
     </style>
 </head>
 <body>
 
-    <!-- 103rd Street -->
+    <!-- 103rd Street (Default: OPEN) -->
     <div class="station-container">
         <div class="white-line"></div>
-        <div class="header">
-            <h1 class="station-name" onclick="toggleStation('body-119')">103 Street Station</h1>
+        <div class="header" onclick="toggleStation('body-119')">
+            <h1 class="station-name">103 Street Station</h1>
             <div class="bullet-box"><div class="circle-lg color-red">1</div></div>
         </div>
         <div id="body-119" class="grid-system">
@@ -55,79 +87,105 @@
         </div>
     </div>
 
-    <!-- 96th Street -->
+    <!-- 96th Street (Default: HIDDEN) -->
     <div class="station-container">
         <div class="white-line"></div>
-        <div class="header">
-            <h1 class="station-name" onclick="toggleStation('body-120')">96 Street Station</h1>
+        <div class="header" onclick="toggleStation('body-120')">
+            <h1 class="station-name">96 Street Station</h1>
             <div class="bullet-box"><div class="circle-lg color-red">1</div><div class="circle-lg color-red">2</div><div class="circle-lg color-red">3</div></div>
         </div>
-        <div id="body-120" class="grid-system">
+        <div id="body-120" class="grid-system hidden">
             <div><div class="column-title">Downtown</div><div id="stop-120-S"></div></div>
             <div><div class="column-title">Uptown</div><div id="stop-120-N"></div></div>
         </div>
     </div>
 
-    <!-- 59th Street -->
+    <!-- 59th Street 1 (Default: HIDDEN) -->
     <div class="station-container">
         <div class="white-line"></div>
-        <div class="header">
-            <h1 class="station-name" onclick="toggleStation('body-125')">59 St - Columbus Circle</h1>
+        <div class="header" onclick="toggleStation('body-125')">
+            <h1 class="station-name">59 St - Columbus Circle (1)</h1>
             <div class="bullet-box"><div class="circle-lg color-red">1</div></div>
         </div>
-        <div id="body-125" class="grid-system">
+        <div id="body-125" class="grid-system hidden">
             <div><div class="column-title">Downtown</div><div id="stop-125-S"></div></div>
             <div><div class="column-title">Uptown</div><div id="stop-125-N"></div></div>
         </div>
     </div>
 
-    <!-- 42nd Street (1, 2, 3) -->
+    <!-- 59th Street BD (Default: HIDDEN) -->
     <div class="station-container">
         <div class="white-line"></div>
-        <div class="header">
-            <h1 class="station-name" onclick="toggleStation('body-127')">42 St - Times Square</h1>
+        <div class="header" onclick="toggleStation('body-A24')">
+            <h1 class="station-name">59 St - Columbus Circle (B,D)</h1>
+            <div class="bullet-box"><div class="circle-lg color-orange">B</div><div class="circle-lg color-orange">D</div></div>
+        </div>
+        <div id="body-A24" class="grid-system hidden">
+            <div><div class="column-title">Downtown</div><div id="stop-A24-S"></div></div>
+            <div><div class="column-title">Uptown</div><div id="stop-A24-N"></div></div>
+        </div>
+    </div>
+
+    <!-- 42nd Street 123 (Default: HIDDEN) -->
+    <div class="station-container">
+        <div class="white-line"></div>
+        <div class="header" onclick="toggleStation('body-127')">
+            <h1 class="station-name">42 St - Times Square (1,2,3)</h1>
             <div class="bullet-box"><div class="circle-lg color-red">1</div><div class="circle-lg color-red">2</div><div class="circle-lg color-red">3</div></div>
         </div>
-        <div id="body-127" class="grid-system">
+        <div id="body-127" class="grid-system hidden">
             <div><div class="column-title">Downtown</div><div id="stop-127-S"></div></div>
             <div><div class="column-title">Uptown</div><div id="stop-127-N"></div></div>
         </div>
     </div>
 
-    <!-- 34th Street–Penn Station -->
+    <!-- 42nd Street NRQ (Default: HIDDEN) -->
     <div class="station-container">
         <div class="white-line"></div>
-        <div class="header">
-            <h1 class="station-name" onclick="toggleStation('body-128')">34 Street Penn Station</h1>
+        <div class="header" onclick="toggleStation('body-R16')">
+            <h1 class="station-name">42 St - Times Square (N,R,Q)</h1>
+            <div class="bullet-box"><div class="circle-lg color-yellow">N</div><div class="circle-lg color-yellow">R</div><div class="circle-lg color-yellow">Q</div></div>
+        </div>
+        <div id="body-R16" class="grid-system hidden">
+            <div><div class="column-title">Downtown</div><div id="stop-R16-S"></div></div>
+            <div><div class="column-title">Uptown</div><div id="stop-R16-N"></div></div>
+        </div>
+    </div>
+
+    <!-- 34th Penn (Default: HIDDEN) -->
+    <div class="station-container">
+        <div class="white-line"></div>
+        <div class="header" onclick="toggleStation('body-128')">
+            <h1 class="station-name">34 Street Penn Station</h1>
             <div class="bullet-box"><div class="circle-lg color-red">1</div><div class="circle-lg color-red">2</div><div class="circle-lg color-red">3</div></div>
         </div>
-        <div id="body-128" class="grid-system">
+        <div id="body-128" class="grid-system hidden">
             <div><div class="column-title">Downtown</div><div id="stop-128-S"></div></div>
             <div><div class="column-title">Uptown</div><div id="stop-128-N"></div></div>
         </div>
     </div>
 
-    <!-- 42nd St - 7 Train -->
+    <!-- 42nd St 7 (Default: HIDDEN) -->
     <div class="station-container">
         <div class="white-line"></div>
-        <div class="header">
-            <h1 class="station-name" onclick="toggleStation('body-725')">42 St - Times Square</h1>
+        <div class="header" onclick="toggleStation('body-725')">
+            <h1 class="station-name">42 St - Times Square (7)</h1>
             <div class="bullet-box"><div class="circle-lg color-purple">7</div></div>
         </div>
-        <div id="body-725" class="grid-system">
+        <div id="body-725" class="grid-system hidden">
             <div><div class="column-title">Downtown</div><div id="stop-725-S"></div></div>
             <div><div class="column-title">Uptown</div><div id="stop-725-N"></div></div>
         </div>
     </div>
 
-    <!-- Hudson Yards - 7 Train -->
+    <!-- Hudson Yards (Default: HIDDEN) -->
     <div class="station-container">
         <div class="white-line"></div>
-        <div class="header">
-            <h1 class="station-name" onclick="toggleStation('body-726')">34 St - Hudson Yards</h1>
+        <div class="header" onclick="toggleStation('body-726')">
+            <h1 class="station-name">34 St - Hudson Yards</h1>
             <div class="bullet-box"><div class="circle-lg color-purple">7</div></div>
         </div>
-        <div id="body-726" class="grid-system">
+        <div id="body-726" class="grid-system hidden">
             <div><div class="column-title">Downtown</div><div id="stop-726-S"></div></div>
             <div><div class="column-title">Uptown</div><div id="stop-726-N"></div></div>
         </div>
@@ -138,21 +196,25 @@
     <script>
         const PROXY = 'https://api.allorigins.win/raw?url='; 
         const FEEDS = [
-            'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs',  
-            'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-7' 
+            'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs',
+            'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-7',
+            'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-nqrw',
+            'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm'
         ];
 
         const STATION_CONFIG = {
             '119': { allowed: ['1'] },
             '120': { allowed: ['1', '2', '3'] },
             '125': { allowed: ['1'] },
+            'A24': { allowed: ['B', 'D'] },
             '127': { allowed: ['1', '2', '3'] },
+            'R16': { allowed: ['N', 'R', 'Q'] },
             '128': { allowed: ['1', '2', '3'] },
             '725': { allowed: ['7'] },
             '726': { allowed: ['7'] }
         };
 
-        const proto = `
+        const protoStr = `
             syntax = "proto3";
             message FeedMessage { repeated FeedEntity entity = 2; }
             message FeedEntity { TripUpdate trip_update = 3; }
@@ -168,13 +230,19 @@
             document.getElementById(id).classList.toggle('hidden');
         }
 
+        function getColorClass(route) {
+            if (['1','2','3'].includes(route)) return 'color-red';
+            if (route === '7') return 'color-purple';
+            if (['N','R','Q'].includes(route)) return 'color-yellow';
+            if (['B','D'].includes(route)) return 'color-orange';
+            return '';
+        }
+
         async function init() {
-            try {
-                const root = protobuf.parse(proto).root;
-                FeedType = root.lookupType("FeedMessage");
-                runUpdate();
-                setInterval(runUpdate, 30000);
-            } catch (e) { document.getElementById('status-bar').innerText = "System Error."; }
+            const root = protobuf.parse(protoStr).root;
+            FeedType = root.lookupType("FeedMessage");
+            runUpdate();
+            setInterval(runUpdate, 30000);
         }
 
         async function runUpdate() {
@@ -198,7 +266,6 @@
                                 ent.tripUpdate.stopTimeUpdate.forEach(stu => {
                                     const stopBase = stu.stopId.substring(0, 3);
                                     const config = STATION_CONFIG[stopBase];
-
                                     if (config && config.allowed.includes(baseRoute)) {
                                         const time = stu.arrival ? stu.arrival.time : (stu.departure ? stu.departure.time : null);
                                         if (time) {
@@ -218,14 +285,10 @@
 
                 Object.keys(STATION_CONFIG).forEach(s => {
                     ['N', 'S'].forEach(dir => {
-                        const list = results[s][dir]
-                            .sort((a, b) => a.m - b.m)
-                            .filter((v, i, a) => a.findIndex(t => t.m === v.m && t.r === v.r) === i)
-                            .slice(0, 3);
-
+                        const list = results[s][dir].sort((a, b) => a.m - b.m).filter((v, i, a) => a.findIndex(t => t.m === v.m && t.r === v.r) === i).slice(0, 3);
                         const html = list.map(item => `
                             <div class="train-row">
-                                <div class="circle-sm ${item.r === '7' ? 'color-purple' : 'color-red'}">${item.r}</div>
+                                <div class="circle-sm ${getColorClass(item.r)}">${item.r}</div>
                                 <div class="clock-time">${item.c}</div>
                                 <div class="time-display">
                                     ${item.m <= 0 ? '<span class="arriving">ARRIVING</span>' : item.m + '<span class="min-unit">MIN</span>'}
