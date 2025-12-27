@@ -193,4 +193,166 @@
             <div id="alert-128" class="service-alert"></div>
             <div id="body-128" class="grid-system hidden">
                 <div><div class="column-title">Downtown</div><div id="stop-128-S"></div></div>
-                <div><div class="column-title">Uptown</div><d
+                <div><div class="column-title">Uptown</div><div id="stop-128-N"></div></div>
+            </div>
+        </div>
+
+        <!-- 34 St Hudson Yards -->
+        <div class="station-container">
+            <div class="white-line"></div>
+            <div class="header" onclick="toggleStation('body-726')">
+                <h1 class="station-name">34 St - Hudson Yards</h1>
+                <div class="bullet-box"><div class="circle-lg color-purple">7</div></div>
+            </div>
+            <div id="alert-726" class="service-alert"></div>
+            <div id="body-726" class="grid-system hidden">
+                <div><div class="column-title">Downtown</div><div id="stop-726-S"></div></div>
+                <div><div class="column-title">Uptown</div><div id="stop-726-N"></div></div>
+            </div>
+        </div>
+
+        <!-- 36 St Brooklyn -->
+        <div class="station-container">
+            <div class="white-line"></div>
+            <div class="header" onclick="toggleStation('body-R36')">
+                <h1 class="station-name">36 St - Brooklyn</h1>
+                <div class="bullet-box"><div class="circle-lg color-orange">D</div><div class="circle-lg color-yellow">N</div><div class="circle-lg color-yellow">R</div></div>
+            </div>
+            <div id="alert-R36" class="service-alert"></div>
+            <div id="body-R36" class="grid-system hidden">
+                <div><div class="column-title">Manhattan</div><div id="stop-R36-N"></div></div>
+                <div><div class="column-title">Coney Isl</div><div id="stop-R36-S"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="status-bar">Connecting to MTA...</div>
+
+    <script>
+        const PROXY = 'https://api.allorigins.win/raw?url='; 
+        const FEEDS = [
+            'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs',
+            'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-7',
+            'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-nqrw',
+            'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-bdfm'
+        ];
+        const ALERTS_URL = 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts.json';
+
+        const STATION_CONFIG = {
+            '119': { allowed: ['1'] },
+            '120': { allowed: ['1', '2', '3'] },
+            '125': { allowed: ['1'] },
+            'A24': { allowed: ['B', 'D'] },
+            '127': { allowed: ['1', '2', '3'] },
+            'R16': { allowed: ['N', 'R', 'Q'] },
+            '128': { allowed: ['1', '2', '3'] },
+            '725': { allowed: ['7'] },
+            '726': { allowed: ['7'] },
+            'R36': { allowed: ['D', 'N', 'R'] }
+        };
+
+        const protoStr = `syntax = "proto3"; message FeedMessage { repeated FeedEntity entity = 2; } message FeedEntity { TripUpdate trip_update = 3; } message TripUpdate { TripDescriptor trip = 1; repeated StopTimeUpdate stop_time_update = 2; } message TripDescriptor { string route_id = 2; string nyct_route_id = 5; } message StopTimeUpdate { string stop_id = 4; StopTimeEvent arrival = 2; StopTimeEvent departure = 3; } message StopTimeEvent { int64 time = 2; }`;
+
+        let FeedType;
+
+        function toggleStation(id) { document.getElementById(id).classList.toggle('hidden'); }
+
+        function getColorClass(route) {
+            if (['1','2','3'].includes(route)) return 'color-red';
+            if (route === '7') return 'color-purple';
+            if (['N','R','Q'].includes(route)) return 'color-yellow';
+            if (['B','D'].includes(route)) return 'color-orange';
+            return '';
+        }
+
+        async function init() {
+            try {
+                const root = protobuf.parse(protoStr).root;
+                FeedType = root.lookupType("FeedMessage");
+                runUpdate();
+                setInterval(runUpdate, 30000);
+            } catch (e) { document.getElementById('status-bar').innerText = "Init Failed."; }
+        }
+
+        async function runUpdate() {
+            const now = Math.floor(Date.now() / 1000);
+            const results = {};
+            const activeAlerts = {};
+            Object.keys(STATION_CONFIG).forEach(s => { 
+                results[s] = { N: [], S: [] }; 
+                activeAlerts[s] = new Set();
+            });
+
+            // 1. Alerts
+            try {
+                const alertRes = await fetch(PROXY + encodeURIComponent(ALERTS_URL));
+                const alertData = await alertRes.json();
+                if (alertData && alertData.entity) {
+                    alertData.entity.forEach(ent => {
+                        if (!ent.alert) return;
+                        const text = ent.alert.header_text?.translation[0]?.text || "";
+                        ent.alert.informed_entity.forEach(ie => {
+                            Object.entries(STATION_CONFIG).forEach(([sid, cfg]) => {
+                                if (ie.route_id && cfg.allowed.includes(ie.route_id.charAt(0))) activeAlerts[sid].add(text);
+                                if (ie.stop_id && ie.stop_id.startsWith(sid)) activeAlerts[sid].add(text);
+                            });
+                        });
+                    });
+                }
+            } catch (e) {}
+
+            // 2. Times
+            for (const url of FEEDS) {
+                try {
+                    const res = await fetch(PROXY + encodeURIComponent(url));
+                    const buffer = await res.arrayBuffer();
+                    const msg = FeedType.decode(new Uint8Array(buffer));
+                    msg.entity.forEach(ent => {
+                        if (ent.tripUpdate && ent.tripUpdate.stopTimeUpdate) {
+                            const rawR = ent.tripUpdate.trip.nyctRouteId || ent.tripUpdate.trip.routeId || "";
+                            const r = rawR.charAt(0);
+                            ent.tripUpdate.stopTimeUpdate.forEach(stu => {
+                                const stopBase = stu.stopId.substring(0, 3);
+                                if (STATION_CONFIG[stopBase] && STATION_CONFIG[stopBase].allowed.includes(r)) {
+                                    const time = stu.arrival ? stu.arrival.time : (stu.departure ? stu.departure.time : null);
+                                    if (time) {
+                                        const mins = Math.floor((time - now) / 60);
+                                        if (mins >= -1 && mins < 60) {
+                                            const dir = stu.stopId.includes('N') ? 'N' : 'S';
+                                            const clock = new Date(time * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+                                            results[stopBase][dir].push({ m: Math.max(0, mins), r: r, c: clock });
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                } catch (e) {}
+            }
+
+            // 3. Render
+            Object.keys(STATION_CONFIG).forEach(s => {
+                const alertEl = document.getElementById(`alert-${s}`);
+                if (activeAlerts[s].size > 0) {
+                    alertEl.innerText = Array.from(activeAlerts[s])[0];
+                    alertEl.style.display = "block";
+                } else { alertEl.style.display = "none"; }
+
+                ['N', 'S'].forEach(dir => {
+                    const list = results[s][dir].sort((a, b) => a.m - b.m).filter((v, i, a) => a.findIndex(t => t.m === v.m && t.r === v.r) === i).slice(0, 3);
+                    const html = list.map(item => `
+                        <div class="train-row">
+                            <div class="circle-sm ${getColorClass(item.r)}">${item.r}</div>
+                            <div class="clock-time">${item.c}</div>
+                            <div class="time-display">${item.m <= 0 ? '<span class="arriving">ARRIVING</span>' : item.m + '<span class="min-unit">MIN</span>'}</div>
+                        </div>`).join('');
+                    const container = document.getElementById(`stop-${s}-${dir}`);
+                    if (container) container.innerHTML = html || '<div class="train-row" style="color:#222">--</div>';
+                });
+            });
+            document.getElementById('status-bar').innerText = "Updated: " + new Date().toLocaleTimeString();
+        }
+        init();
+    </script>
+</body>
+</html>
