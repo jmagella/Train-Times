@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYC Subway Board - Optimized</title>
+    <title>Subway Times</title>
     <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.4/dist/protobuf.min.js"></script>
     <style>
         body { 
@@ -11,34 +11,115 @@
             background: #000; color: #fff; margin: 0; padding: 10px;
             display: flex; flex-direction: column; align-items: center;
         }
-        .station-container { width: 100%; max-width: 850px; margin-bottom: 12px; }
+
+        /* UPDATED: Main Title Header Centered */
+        .main-title {
+            width: 95%;
+            max-width: 850px;
+            font-size: clamp(2.5rem, 10vw, 4rem);
+            font-weight: 900;
+            margin: 20px 0 10px 0;
+            letter-spacing: -3px;
+            cursor: pointer;
+            user-select: none;
+            text-align: center; /* Centered justification */
+            text-transform: uppercase;
+            line-height: 0.9;
+        }
+        .main-title:hover { opacity: 0.8; }
+
+        .station-container { 
+            display: flex;
+            flex-direction: column;
+            width: 95%; 
+            max-width: 850px; 
+            margin-bottom: 12px;
+        }
+
         .white-line { height: 2px; background: #fff; width: 100%; margin-top: 10px; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; cursor: pointer; user-select: none; }
+        
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 12px 0 4px 0; 
+            cursor: pointer; 
+            user-select: none;
+        }
         .header:hover { background: rgba(255,255,255,0.05); }
-        .station-name { font-size: clamp(1.2rem, 5vw, 2.5rem); font-weight: 700; letter-spacing: -1.5px; margin: 0; }
-        .station-body { display: flex; flex-direction: column; width: 100%; }
-        .service-alert { order: 1; color: #D4AF37; font-size: 0.8rem; font-weight: 500; margin-top: 5px; margin-bottom: 8px; text-transform: uppercase; display: none; line-height: 1.2; }
-        .grid-system { order: 2; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); column-gap: 120px; width: 100%; padding-bottom: 15px; }
+
+        .station-name { 
+            font-size: clamp(1.2rem, 5vw, 2.5rem); 
+            font-weight: 700; 
+            letter-spacing: -1.5px; 
+            margin: 0; 
+        }
+
+        .station-body {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .service-alert {
+            order: 1;
+            color: #D4AF37; 
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 5px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            display: none;
+            line-height: 1.2;
+        }
+        
+        .grid-system { 
+            order: 2;
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            column-gap: 120px; 
+            width: 100%; 
+            padding-bottom: 15px;
+        }
+
         .bullet-box { display: flex; gap: 5px; }
-        .circle-lg { color: #fff; border-radius: 50%; width: clamp(35px, 8vw, 58px); height: clamp(35px, 8vw, 58px); display: flex; align-items: center; justify-content: center; font-size: clamp(20px, 5vw, 36px); font-weight: 900; }
+        .circle-lg {
+            color: #fff; border-radius: 50%; width: clamp(35px, 8vw, 58px); height: clamp(35px, 8vw, 58px); 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: clamp(20px, 5vw, 36px); font-weight: 900;
+        }
+        
         .color-red { background: #EE352E; }
         .color-purple { background: #B933AD; }
         .color-yellow { background: #FCCC0A; color: #000 !important; } 
         .color-orange { background: #FF6319; }
+
         .hidden { display: none !important; }
+        
         .column-title { color: #666; text-transform: uppercase; font-size: 1.4rem; font-weight: 900; padding-bottom: 5px; margin-bottom: 5px; border-bottom: 1px solid #222; letter-spacing: 2px; text-align: right; }
         .train-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #222; min-height: 40px; }
         .circle-sm { border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; flex-shrink: 0; margin-right: 12px; }
         .circle-sm:not(.color-yellow) { color: #fff; }
+        
         .clock-time { font-size: 1.1rem; color: #888; font-weight: 500; }
         .time-display { font-size: 2rem; font-weight: 700; text-align: right; white-space: nowrap; flex-grow: 1; }
         .min-unit { font-size: 0.4em; color: #666; margin-left: 4px; }
+        
         .arriving { color: #00FF00; font-size: 0.8em; font-weight: 900; }
+        
         #status-bar { color: #333; font-size: 0.7rem; margin-top: 20px; text-align: center; }
-        @media (max-width: 600px) { .grid-system { order: 1; grid-template-columns: 1fr; gap: 20px; } .service-alert { order: 2; margin-top: 10px; } .column-title { text-align: left; font-size: 1.2rem; } }
+        
+        @media (max-width: 600px) { 
+            .grid-system { order: 1; grid-template-columns: 1fr; gap: 20px; } 
+            .service-alert { order: 2; margin-top: 10px; }
+            .column-title { text-align: left; font-size: 1.2rem; } 
+        }
     </style>
 </head>
 <body>
+
+    <!-- Centered Main Title Click to Reload -->
+    <h1 class="main-title" onclick="location.reload()">Subway Times</h1>
 
     <div id="station-list">
         <!-- 103 St -->
@@ -56,6 +137,7 @@
                 </div>
             </div>
         </div>
+
         <!-- 96 St -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -71,6 +153,7 @@
                 </div>
             </div>
         </div>
+
         <!-- 59 St (1) -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -86,6 +169,7 @@
                 </div>
             </div>
         </div>
+
         <!-- 59 St (BD) -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -101,6 +185,7 @@
                 </div>
             </div>
         </div>
+
         <!-- 42 St (IRT) -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -116,6 +201,7 @@
                 </div>
             </div>
         </div>
+
         <!-- 42 St (7) -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -131,6 +217,7 @@
                 </div>
             </div>
         </div>
+
         <!-- 42 St (NRQ) -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -146,6 +233,7 @@
                 </div>
             </div>
         </div>
+
         <!-- 34 St Penn -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -161,6 +249,7 @@
                 </div>
             </div>
         </div>
+
         <!-- 34 St Hudson -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -176,6 +265,7 @@
                 </div>
             </div>
         </div>
+
         <!-- 36 St Brooklyn -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -236,7 +326,6 @@
             const activeAlerts = {};
             Object.keys(STATION_CONFIG).forEach(s => { results[s] = { N: [], S: [] }; activeAlerts[s] = new Set(); });
 
-            // OPTIMIZATION: Simultaneous (Parallel) Fetching
             const alertTask = fetch(PROXY + encodeURIComponent(ALERTS_URL)).then(r => r.json()).catch(() => null);
             const feedTasks = FEEDS.map(url => fetch(PROXY + encodeURIComponent(url)).then(r => r.arrayBuffer()).catch(() => null));
 
