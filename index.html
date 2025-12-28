@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYC Subway Board - Version 1.3 Milestone</title>
+    <title>NYC Subway Board - Optimized</title>
     <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.4/dist/protobuf.min.js"></script>
     <style>
         body { 
@@ -11,92 +11,31 @@
             background: #000; color: #fff; margin: 0; padding: 10px;
             display: flex; flex-direction: column; align-items: center;
         }
-
-        .station-container { 
-            width: 100%; 
-            max-width: 850px; 
-            margin-bottom: 12px;
-        }
-
+        .station-container { width: 100%; max-width: 850px; margin-bottom: 12px; }
         .white-line { height: 2px; background: #fff; width: 100%; margin-top: 10px; }
-        
-        .header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 8px 0 4px 0; 
-            cursor: pointer; 
-            user-select: none;
-        }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; cursor: pointer; user-select: none; }
         .header:hover { background: rgba(255,255,255,0.05); }
-
-        .station-name { 
-            font-size: clamp(1.2rem, 5vw, 2.5rem); 
-            font-weight: 700; 
-            letter-spacing: -1.5px; 
-            margin: 0; 
-        }
-
-        /* The Toggleable Body */
-        .station-body {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-        }
-
-        .service-alert {
-            order: 1; /* Top on Desktop */
-            color: #D4AF37; 
-            font-size: 0.8rem;
-            font-weight: 500;
-            margin-top: 5px;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            display: none; /* Controlled by JS based on data */
-            line-height: 1.2;
-        }
-        
-        .grid-system { 
-            order: 2; /* Bottom on Desktop */
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            column-gap: 120px; 
-            width: 100%; 
-            padding-bottom: 15px;
-        }
-
+        .station-name { font-size: clamp(1.2rem, 5vw, 2.5rem); font-weight: 700; letter-spacing: -1.5px; margin: 0; }
+        .station-body { display: flex; flex-direction: column; width: 100%; }
+        .service-alert { order: 1; color: #D4AF37; font-size: 0.8rem; font-weight: 500; margin-top: 5px; margin-bottom: 8px; text-transform: uppercase; display: none; line-height: 1.2; }
+        .grid-system { order: 2; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); column-gap: 120px; width: 100%; padding-bottom: 15px; }
         .bullet-box { display: flex; gap: 5px; }
-        .circle-lg {
-            color: #fff; border-radius: 50%; width: clamp(35px, 8vw, 58px); height: clamp(35px, 8vw, 58px); 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: clamp(20px, 5vw, 36px); font-weight: 900;
-        }
-        
+        .circle-lg { color: #fff; border-radius: 50%; width: clamp(35px, 8vw, 58px); height: clamp(35px, 8vw, 58px); display: flex; align-items: center; justify-content: center; font-size: clamp(20px, 5vw, 36px); font-weight: 900; }
         .color-red { background: #EE352E; }
         .color-purple { background: #B933AD; }
         .color-yellow { background: #FCCC0A; color: #000 !important; } 
         .color-orange { background: #FF6319; }
-
         .hidden { display: none !important; }
-        
         .column-title { color: #666; text-transform: uppercase; font-size: 1.4rem; font-weight: 900; padding-bottom: 5px; margin-bottom: 5px; border-bottom: 1px solid #222; letter-spacing: 2px; text-align: right; }
         .train-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #222; min-height: 40px; }
         .circle-sm { border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; flex-shrink: 0; margin-right: 12px; }
         .circle-sm:not(.color-yellow) { color: #fff; }
-        
         .clock-time { font-size: 1.1rem; color: #888; font-weight: 500; }
         .time-display { font-size: 2rem; font-weight: 700; text-align: right; white-space: nowrap; flex-grow: 1; }
         .min-unit { font-size: 0.4em; color: #666; margin-left: 4px; }
-        
         .arriving { color: #00FF00; font-size: 0.8em; font-weight: 900; }
-        
         #status-bar { color: #333; font-size: 0.7rem; margin-top: 20px; text-align: center; }
-        
-        @media (max-width: 600px) { 
-            .grid-system { order: 1; grid-template-columns: 1fr; gap: 20px; } 
-            .service-alert { order: 2; margin-top: 10px; }
-            .column-title { text-align: left; font-size: 1.2rem; } 
-        }
+        @media (max-width: 600px) { .grid-system { order: 1; grid-template-columns: 1fr; gap: 20px; } .service-alert { order: 2; margin-top: 10px; } .column-title { text-align: left; font-size: 1.2rem; } }
     </style>
 </head>
 <body>
@@ -117,7 +56,6 @@
                 </div>
             </div>
         </div>
-
         <!-- 96 St -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -133,7 +71,6 @@
                 </div>
             </div>
         </div>
-
         <!-- 59 St (1) -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -149,7 +86,6 @@
                 </div>
             </div>
         </div>
-
         <!-- 59 St (BD) -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -165,7 +101,6 @@
                 </div>
             </div>
         </div>
-
         <!-- 42 St (IRT) -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -181,7 +116,6 @@
                 </div>
             </div>
         </div>
-
         <!-- 42 St (7) -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -197,7 +131,6 @@
                 </div>
             </div>
         </div>
-
         <!-- 42 St (NRQ) -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -213,7 +146,6 @@
                 </div>
             </div>
         </div>
-
         <!-- 34 St Penn -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -229,7 +161,6 @@
                 </div>
             </div>
         </div>
-
         <!-- 34 St Hudson -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -245,7 +176,6 @@
                 </div>
             </div>
         </div>
-
         <!-- 36 St Brooklyn -->
         <div class="station-container">
             <div class="white-line"></div>
@@ -253,12 +183,10 @@
                 <h1 class="station-name">36 St - Brooklyn</h1>
                 <div class="bullet-box"><div class="circle-lg color-orange">D</div><div class="circle-lg color-yellow">N</div><div class="circle-lg color-yellow">R</div></div>
             </div>
+            <div id="alert-R36" class="service-alert"></div>
             <div id="body-R36" class="station-body hidden">
-                <div id="alert-R36" class="service-alert"></div>
-                <div class="grid-system">
-                    <div><div class="column-title">Manhattan</div><div id="stop-R36-N"></div></div>
-                    <div><div class="column-title">Coney Isl</div><div id="stop-R36-S"></div></div>
-                </div>
+                <div><div class="column-title">Manhattan</div><div id="stop-R36-N"></div></div>
+                <div><div class="column-title">Coney Isl</div><div id="stop-R36-S"></div></div>
             </div>
         </div>
     </div>
@@ -266,7 +194,7 @@
     <div id="status-bar">Connecting to MTA...</div>
 
     <script>
-        const PROXY = 'https://api.allorigins.win/raw?url='; 
+        const PROXY = 'https://corsproxy.io/?'; 
         const FEEDS = [
             'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs',
             'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-7',
@@ -276,15 +204,9 @@
         const ALERTS_URL = 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/camsys%2Fsubway-alerts.json';
 
         const STATION_CONFIG = {
-            '119': { allowed: ['1'] },
-            '120': { allowed: ['1', '2', '3'] },
-            '125': { allowed: ['1'] },
-            'A24': { allowed: ['B', 'D'] },
-            '127': { allowed: ['1', '2', '3'] },
-            'R16': { allowed: ['N', 'R', 'Q'] },
-            '128': { allowed: ['1', '2', '3'] },
-            '725': { allowed: ['7'] },
-            '726': { allowed: ['7'] },
+            '119': { allowed: ['1'] }, '120': { allowed: ['1', '2', '3'] }, '125': { allowed: ['1'] },
+            'A24': { allowed: ['B', 'D'] }, '127': { allowed: ['1', '2', '3'] }, 'R16': { allowed: ['N', 'R', 'Q'] },
+            '128': { allowed: ['1', '2', '3'] }, '725': { allowed: ['7'] }, '726': { allowed: ['7'] },
             'R36': { allowed: ['D', 'N', 'R'] }
         };
 
@@ -293,7 +215,6 @@
         let FeedType;
 
         function toggleStation(id) { document.getElementById(id).classList.toggle('hidden'); }
-
         function getColorClass(route) {
             if (['1','2','3'].includes(route)) return 'color-red';
             if (route === '7') return 'color-purple';
@@ -313,34 +234,30 @@
             const now = Math.floor(Date.now() / 1000);
             const results = {};
             const activeAlerts = {};
-            Object.keys(STATION_CONFIG).forEach(s => { 
-                results[s] = { N: [], S: [] }; 
-                activeAlerts[s] = new Set();
-            });
+            Object.keys(STATION_CONFIG).forEach(s => { results[s] = { N: [], S: [] }; activeAlerts[s] = new Set(); });
 
-            // 1. Alerts
-            try {
-                const alertRes = await fetch(PROXY + encodeURIComponent(ALERTS_URL));
-                const alertData = await alertRes.json();
-                if (alertData && alertData.entity) {
-                    alertData.entity.forEach(ent => {
-                        if (!ent.alert) return;
-                        const text = ent.alert.header_text?.translation[0]?.text || "";
-                        ent.alert.informed_entity.forEach(ie => {
-                            Object.entries(STATION_CONFIG).forEach(([sid, cfg]) => {
-                                if (ie.route_id && cfg.allowed.includes(ie.route_id.charAt(0))) activeAlerts[sid].add(text);
-                                if (ie.stop_id && ie.stop_id.startsWith(sid)) activeAlerts[sid].add(text);
-                            });
+            // OPTIMIZATION: Simultaneous (Parallel) Fetching
+            const alertTask = fetch(PROXY + encodeURIComponent(ALERTS_URL)).then(r => r.json()).catch(() => null);
+            const feedTasks = FEEDS.map(url => fetch(PROXY + encodeURIComponent(url)).then(r => r.arrayBuffer()).catch(() => null));
+
+            const [alertData, ...buffers] = await Promise.all([alertTask, ...feedTasks]);
+
+            if (alertData && alertData.entity) {
+                alertData.entity.forEach(ent => {
+                    if (!ent.alert) return;
+                    const text = ent.alert.header_text?.translation[0]?.text || "";
+                    ent.alert.informed_entity.forEach(ie => {
+                        Object.entries(STATION_CONFIG).forEach(([sid, cfg]) => {
+                            if (ie.route_id && cfg.allowed.includes(ie.route_id.charAt(0))) activeAlerts[sid].add(text);
+                            if (ie.stop_id && ie.stop_id.startsWith(sid)) activeAlerts[sid].add(text);
                         });
                     });
-                }
-            } catch (e) {}
+                });
+            }
 
-            // 2. Train Times
-            for (const url of FEEDS) {
+            buffers.forEach(buffer => {
+                if (!buffer) return;
                 try {
-                    const res = await fetch(PROXY + encodeURIComponent(url));
-                    const buffer = await res.arrayBuffer();
                     const msg = FeedType.decode(new Uint8Array(buffer));
                     msg.entity.forEach(ent => {
                         if (ent.tripUpdate && ent.tripUpdate.stopTimeUpdate) {
@@ -362,10 +279,9 @@
                             });
                         }
                     });
-                } catch (e) {}
-            }
+                } catch(e) {}
+            });
 
-            // 3. Render
             Object.keys(STATION_CONFIG).forEach(s => {
                 const alertEl = document.getElementById(`alert-${s}`);
                 if (activeAlerts[s].size > 0) {
